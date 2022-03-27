@@ -4853,29 +4853,30 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   # if(prevodd && match(prevprev, " +for \\(")) complain = 0;
   scope_or_label_pattern = r'\s*(?:public|private|protected|signals)(?:\s+(?:slots\s*)?)?:\s*\\?$'
   classinfo = nesting_state.InnermostClass()
+  # Checking the number of spaces in the front of the line
   initial_spaces = 0
-  prev_initial_spaces = 0
   cleansed_line = clean_lines.elided[linenum]
   while initial_spaces < len(line) and line[initial_spaces] == ' ':
     initial_spaces += 1
+  # Checking the number of spaces in the front of the previous line
+  prev_spaces = 0
   if (linenum > 0):
-      while prev_initial_spaces < len(prev) and prev[prev_initial_spaces] == ' ':
-        prev_initial_spaces += 1
+    while prev_spaces < len(prev) and prev[prev_spaces] == ' ':
+      prev_spaces += 1
   space_dif = 0
-  if (prev_initial_spaces > initial_spaces):
-      space_dif = prev_initial_spaces - initial_spaces
+  if (prev_spaces < initial_spaces):
+    space_dif = initial_spaces - prev_spaces
   # There are certain situations we allow one space, notably for
   # section labels, and also lines containing multi-line raw strings.
   # We also don't check for lines that look like continuation lines
   # (of lines ending in double quotes, commas, equals, or angle brackets)
   # because the rules for how to indent those are non-trivial.
   if (not Search(r'[",=><] *$', prev) and
-      (initial_spaces != 3 and initial_spaces != 0) and
-      (space_dif != 0 or space_dif != 3) and
-      #(initial_spaces == 1 or initial_spaces == 3) and
-      not Match(scope_or_label_pattern, cleansed_line) and
-      not (clean_lines.raw_lines[linenum] != line and
-           Match(r'^\s*""', line))):
+    ((initial_spaces % 3 != 0) or
+    (space_dif != 0 and space_dif != 3)) and
+    not Match(scope_or_label_pattern, cleansed_line) and
+    not (clean_lines.raw_lines[linenum] != line and
+         Match(r'^\s*""', line))):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
           'Are you using a 3-space indent?')
