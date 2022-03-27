@@ -27,7 +27,7 @@ int main() {
         {
             new_password += '$';
         }
-        else 
+        else
         {
             new_password += password[i];
         }

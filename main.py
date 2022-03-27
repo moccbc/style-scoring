@@ -12,7 +12,7 @@ class Scorer:
     # The inputs to this function are neccessary for the cpplint library
     def logError(self, filename, linenum, category, confidence, message):
         msg = '%s:%s:  %s  [%s] [%d]\n' % (
-                filename, linenum, message, category, confidence)
+                filename, linenum+1, message, category, confidence)
         self.errors.append(msg)
 
     # Currently the score is set to how many errors there were
@@ -24,7 +24,7 @@ class Scorer:
         for error in self.errors:
             print(error, end="")
 
-# Get the filename
+# Get the filenames
 filenames = cl.ParseArguments(sys.argv[1:])
 
 scorers = []
@@ -35,6 +35,7 @@ for filename in filenames:
 
     # Separate the code into lines
     with codecs.open(filename, 'r', 'utf8', 'replace') as target_file:
+        print(target_file)
         lines = target_file.read().split('\n')
 
     # Finds the file extention eg) .cpp, .hpp, etc.

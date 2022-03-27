@@ -5,9 +5,9 @@ string HeadsOrTails();
 int main() {
    srand(time (NULL));
    int numOfTosses;
-   
+
    cin >> numOfTosses;
-   
+
    for(int i=0; i< numOfTosses; i++) {
       cout << HeadsOrTails() << endl;
    }

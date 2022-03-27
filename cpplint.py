@@ -871,7 +871,7 @@ _quiet = False
 
 # The allowed line length of files.
 # This is set by --linelength flag.
-_line_length = 80
+_line_length = 100
 
 # This allows to use different include order rule than default
 _include_order = "default"
@@ -4854,22 +4854,31 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   scope_or_label_pattern = r'\s*(?:public|private|protected|signals)(?:\s+(?:slots\s*)?)?:\s*\\?$'
   classinfo = nesting_state.InnermostClass()
   initial_spaces = 0
+  prev_initial_spaces = 0
   cleansed_line = clean_lines.elided[linenum]
   while initial_spaces < len(line) and line[initial_spaces] == ' ':
     initial_spaces += 1
+  if (linenum > 0):
+      while prev_initial_spaces < len(prev) and prev[prev_initial_spaces] == ' ':
+        prev_initial_spaces += 1
+  space_dif = 0
+  if (prev_initial_spaces > initial_spaces):
+      space_dif = prev_initial_spaces - initial_spaces
   # There are certain situations we allow one space, notably for
   # section labels, and also lines containing multi-line raw strings.
   # We also don't check for lines that look like continuation lines
   # (of lines ending in double quotes, commas, equals, or angle brackets)
   # because the rules for how to indent those are non-trivial.
   if (not Search(r'[",=><] *$', prev) and
-      (initial_spaces == 1 or initial_spaces == 3) and
+      (initial_spaces != 3 and initial_spaces != 0) and
+      (space_dif != 0 or space_dif != 3) and
+      #(initial_spaces == 1 or initial_spaces == 3) and
       not Match(scope_or_label_pattern, cleansed_line) and
       not (clean_lines.raw_lines[linenum] != line and
            Match(r'^\s*""', line))):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
-          'Are you using a 2-space indent?')
+          'Are you using a 3-space indent?')
 
   if line and line[-1].isspace():
     error(filename, linenum, 'whitespace/end_of_line', 4,
@@ -4920,20 +4929,20 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
           'More than one command on the same line')
 
   # Some more style checks
-  CheckBraces(filename, clean_lines, linenum, error)
-  CheckTrailingSemicolon(filename, clean_lines, linenum, error)
-  CheckEmptyBlockBody(filename, clean_lines, linenum, error)
-  CheckSpacing(filename, clean_lines, linenum, nesting_state, error)
-  CheckOperatorSpacing(filename, clean_lines, linenum, error)
-  CheckParenthesisSpacing(filename, clean_lines, linenum, error)
-  CheckCommaSpacing(filename, clean_lines, linenum, error)
-  CheckBracesSpacing(filename, clean_lines, linenum, nesting_state, error)
-  CheckSpacingForFunctionCall(filename, clean_lines, linenum, error)
-  CheckCheck(filename, clean_lines, linenum, error)
-  CheckAltTokens(filename, clean_lines, linenum, error)
-  classinfo = nesting_state.InnermostClass()
-  if classinfo:
-    CheckSectionSpacing(filename, clean_lines, classinfo, linenum, error)
+  #CheckBraces(filename, clean_lines, linenum, error)
+  #CheckTrailingSemicolon(filename, clean_lines, linenum, error)
+  #CheckEmptyBlockBody(filename, clean_lines, linenum, error)
+  #CheckSpacing(filename, clean_lines, linenum, nesting_state, error)
+  #CheckOperatorSpacing(filename, clean_lines, linenum, error)
+  #CheckParenthesisSpacing(filename, clean_lines, linenum, error)
+  #CheckCommaSpacing(filename, clean_lines, linenum, error)
+  #CheckBracesSpacing(filename, clean_lines, linenum, nesting_state, error)
+  #CheckSpacingForFunctionCall(filename, clean_lines, linenum, error)
+  #CheckCheck(filename, clean_lines, linenum, error)
+  #CheckAltTokens(filename, clean_lines, linenum, error)
+  #classinfo = nesting_state.InnermostClass()
+  #if classinfo:
+  #  CheckSectionSpacing(filename, clean_lines, classinfo, linenum, error)
 
 
 _RE_PATTERN_INCLUDE = re.compile(r'^\s*#\s*include\s*([<"])([^>"]*)[>"].*$')
