@@ -4256,7 +4256,7 @@ def CheckBraces(filename, clean_lines, linenum, error):
     # the previous non-blank line is ',', ';', ':', '(', '{', or '}', or if the
     # previous line starts a preprocessor block. We also allow a brace on the
     # following line if it is part of an array initialization and would not fit
-    # within the 80 character limit of the preceding line.
+    # within the 100 character limit of the preceding line.
     prevline = GetPreviousNonBlankLine(clean_lines, linenum)[0]
     if (not Search(r'[,;:}{(]\s*$', prevline) and
         not Match(r'\s*#', prevline) and
@@ -4264,29 +4264,27 @@ def CheckBraces(filename, clean_lines, linenum, error):
       error(filename, linenum, 'whitespace/braces', 4,
             '{ should almost always be at the end of the previous line')
 
-  # An else clause should be on the same line as the preceding closing brace.
-  if Match(r'\s*else\b\s*(?:if\b|\{|$)', line):
-    prevline = GetPreviousNonBlankLine(clean_lines, linenum)[0]
-    if Match(r'\s*}\s*$', prevline):
-      error(filename, linenum, 'whitespace/newline', 4,
-            'An else should appear on the same line as the preceding }')
+  # An else clause should NOT be on the same line as the preceding closing brace.
+  if Match(r'\s*\}\s*else\b\s*(?:if\b|\{|$)', line):
+    error(filename, linenum, 'whitespace/newline', 4,
+          'An else should not appear on the same line as the preceding }')
 
   # If braces come on one side of an else, they should be on both.
   # However, we have to worry about "else if" that spans multiple lines!
-  if Search(r'else if\s*\(', line):       # could be multi-line if
-    brace_on_left = bool(Search(r'}\s*else if\s*\(', line))
-    # find the ( after the if
-    pos = line.find('else if')
-    pos = line.find('(', pos)
-    if pos > 0:
-      (endline, _, endpos) = CloseExpression(clean_lines, linenum, pos)
-      brace_on_right = endline[endpos:].find('{') != -1
-      if brace_on_left != brace_on_right:    # must be brace after if
-        error(filename, linenum, 'readability/braces', 5,
-              'If an else has a brace on one side, it should have it on both')
-  elif Search(r'}\s*else[^{]*$', line) or Match(r'[^}]*else\s*{', line):
-    error(filename, linenum, 'readability/braces', 5,
-          'If an else has a brace on one side, it should have it on both')
+  #if Search(r'else if\s*\(', line):       # could be multi-line if
+  #  brace_on_left = bool(Search(r'}\s*else if\s*\(', line))
+  #  # find the ( after the if
+  #  pos = line.find('else if')
+  #  pos = line.find('(', pos)
+  #  if pos > 0:
+  #    (endline, _, endpos) = CloseExpression(clean_lines, linenum, pos)
+  #    brace_on_right = endline[endpos:].find('{') != -1
+  #    if brace_on_left != brace_on_right:    # must be brace after if
+  #      error(filename, linenum, 'readability/braces', 5,
+  #            'If an else has a brace on one side, it should have it on both')
+  #elif Search(r'}\s*else[^{]*$', line) or Match(r'[^}]*else\s*{', line):
+  #  error(filename, linenum, 'readability/braces', 5,
+  #        'If an else has a brace on one side, it should have it on both')
 
   # Likewise, an else should never have the else clause on the same line
   if Search(r'\belse [^\s{]', line) and not Search(r'\belse if\b', line):
@@ -4853,11 +4851,13 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   # if(prevodd && match(prevprev, " +for \\(")) complain = 0;
   scope_or_label_pattern = r'\s*(?:public|private|protected|signals)(?:\s+(?:slots\s*)?)?:\s*\\?$'
   classinfo = nesting_state.InnermostClass()
+
   # Checking the number of spaces in the front of the line
   initial_spaces = 0
   cleansed_line = clean_lines.elided[linenum]
   while initial_spaces < len(line) and line[initial_spaces] == ' ':
     initial_spaces += 1
+
   # Checking the number of spaces in the front of the previous line
   prev_spaces = 0
   if (linenum > 0):
@@ -4866,6 +4866,7 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   space_dif = 0
   if (prev_spaces < initial_spaces):
     space_dif = initial_spaces - prev_spaces
+
   # There are certain situations we allow one space, notably for
   # section labels, and also lines containing multi-line raw strings.
   # We also don't check for lines that look like continuation lines
@@ -4930,7 +4931,7 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
           'More than one command on the same line')
 
   # Some more style checks
-  #CheckBraces(filename, clean_lines, linenum, error)
+  CheckBraces(filename, clean_lines, linenum, error)
   #CheckTrailingSemicolon(filename, clean_lines, linenum, error)
   #CheckEmptyBlockBody(filename, clean_lines, linenum, error)
   #CheckSpacing(filename, clean_lines, linenum, nesting_state, error)
