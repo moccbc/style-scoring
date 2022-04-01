@@ -4901,17 +4901,13 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
   # because the rules for how to indent those are non-trivial.
   if (not Search(r'[",=><] *$', prev) and
     ((initial_spaces % 3 != 0) or
-    (space_dif != 0 and space_dif != 3)) and
+    (prev_spaces % 3 == 0 and space_dif != 0 and space_dif != 3)) and
     not Match(scope_or_label_pattern, cleansed_line) and
     not (clean_lines.raw_lines[linenum] != line and
          Match(r'^\s*""', line))):
     error(filename, linenum, 'whitespace/indent', 3,
           'Weird number of spaces at line-start.  '
           'Are you using a 3-space indent?')
-
-  #if line and line[-1].isspace():
-  #  error(filename, linenum, 'whitespace/end_of_line', 4,
-  #        'Line ends in whitespace.  Consider deleting these extra spaces.')
 
   # Check if the line is a header guard.
   is_header_guard = False
