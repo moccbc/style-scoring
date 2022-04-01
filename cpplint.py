@@ -4286,10 +4286,22 @@ def CheckBraces(filename, clean_lines, linenum, error):
     while (currLineNum >= 0):
       currLine, currLineNum = GetPreviousNonBlankLine(clean_lines, currLineNum)
       if (Match(r'\s*\}\s*', currLine)):
-          stack.append(currLine)
+          if (len(stack) != 0 and Search(r'{\s*$', currLine)):
+              #print("Matched braces on lines:", stack[len(stack)-1][0]+1, currLineNum+1)
+              if (len(stack) == 1 and
+                  GetNumberOfSpacesInFront(stack[len(stack)-1][1]) !=
+                  GetNumberOfSpacesInFront(currLine)):
+                error(filename, linenum, 'whitespace/newline', 4,
+                      'A } should appear below the first character of the block')
+              stack.pop()
+              if (len(stack) == 0):
+                  break
+          stack.append((currLineNum, currLine))
       elif (Search(r'{\s*$', currLine)):
+          #print("Matched braces on lines:", stack[len(stack)-1][0]+1, currLineNum+1)
           if (len(stack) == 1 and
-              GetNumberOfSpacesInFront(stack[0]) != GetNumberOfSpacesInFront(currLine)):
+              GetNumberOfSpacesInFront(stack[len(stack)-1][1]) !=
+              GetNumberOfSpacesInFront(currLine)):
             error(filename, linenum, 'whitespace/newline', 4,
                   'A } should appear below the first character of the block')
           stack.pop()
