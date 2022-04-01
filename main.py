@@ -7,6 +7,7 @@ class Scorer:
     def __init__(self, filename):
         self.filename = filename
         self.errors = []
+        self.erroneous_lines = set()
 
     # Logs the error
     # The inputs to this function are neccessary for the cpplint library
@@ -14,10 +15,11 @@ class Scorer:
         msg = '%s:%s:  %s  [%s] [%d]\n' % (
                 filename, linenum+1, message, category, confidence)
         self.errors.append(msg)
+        self.erroneous_lines.add(linenum+1)
 
     # Currently the score is set to how many errors there were
     def getScore(self):
-        return len(self.errors)
+        return len(self.erroneous_lines)
 
     def printErrors(self):
         print("Styling errors for ", self.filename)
@@ -35,7 +37,6 @@ for filename in filenames:
 
     # Separate the code into lines
     with codecs.open(filename, 'r', 'utf8', 'replace') as target_file:
-        print(target_file)
         lines = target_file.read().split('\n')
 
     # Finds the file extention eg) .cpp, .hpp, etc.

@@ -4234,6 +4234,16 @@ def GetPreviousNonBlankLine(clean_lines, linenum):
     prevlinenum -= 1
   return ('', -1)
 
+def GetNumberOfSpacesInFront(line):
+    """Counts the number of spaces in front of the line
+
+    Args:
+      line: A line of code
+    """
+    spaces = 0;
+    while spaces < len(line) and line[spaces] == ' ':
+        spaces += 1
+    return spaces
 
 def CheckBraces(filename, clean_lines, linenum, error):
   """Looks for misplaced braces (e.g. at the end of line).
@@ -4262,12 +4272,29 @@ def CheckBraces(filename, clean_lines, linenum, error):
         not Match(r'\s*#', prevline) and
         not (GetLineWidth(prevline) > _line_length - 2 and '[]' in prevline)):
       error(filename, linenum, 'whitespace/braces', 4,
-            '{ should almost always be at the end of the previous line')
+            '{ should always be at the end of the previous line')
 
   # An else clause should NOT be on the same line as the preceding closing brace.
   if Match(r'\s*\}\s*else\b\s*(?:if\b|\{|$)', line):
     error(filename, linenum, 'whitespace/newline', 4,
           'An else should not appear on the same line as the preceding }')
+
+  # The closing brace should be underneath the first letter of the statement.
+  if Match(r'\s*\}\s*', line):
+    stack = []
+    currLineNum = linenum+1
+    while (currLineNum >= 0):
+      currLine, currLineNum = GetPreviousNonBlankLine(clean_lines, currLineNum)
+      if (Match(r'\s*\}\s*', currLine)):
+          stack.append(currLine)
+      elif (Search(r'{\s*$', currLine)):
+          if (len(stack) == 1 and
+              GetNumberOfSpacesInFront(stack[0]) != GetNumberOfSpacesInFront(currLine)):
+            error(filename, linenum, 'whitespace/newline', 4,
+                  'A } should appear below the first character of the block')
+          stack.pop()
+          if (len(stack) == 0):
+              break
 
   # If braces come on one side of an else, they should be on both.
   # However, we have to worry about "else if" that spans multiple lines!
@@ -4882,9 +4909,9 @@ def CheckStyle(filename, clean_lines, linenum, file_extension, nesting_state,
           'Weird number of spaces at line-start.  '
           'Are you using a 3-space indent?')
 
-  if line and line[-1].isspace():
-    error(filename, linenum, 'whitespace/end_of_line', 4,
-          'Line ends in whitespace.  Consider deleting these extra spaces.')
+  #if line and line[-1].isspace():
+  #  error(filename, linenum, 'whitespace/end_of_line', 4,
+  #        'Line ends in whitespace.  Consider deleting these extra spaces.')
 
   # Check if the line is a header guard.
   is_header_guard = False
