@@ -26,29 +26,33 @@ class Scorer:
         for error in self.errors:
             print(error, end="")
 
+    def score(self):
+        # Needed to hold states for cpplint to parse braces
+        nesting_state = cl.NestingState()
+
+        # Separate the code into lines
+        with codecs.open(self.filename, 'r', 'utf8', 'replace') as target_file:
+            lines = target_file.read().split('\n')
+
+        # Finds the file extention eg) .cpp, .hpp, etc.
+        file_extension = self.filename[self.filename.rfind('.')+1:]
+
+        # Remove comments
+        clean_lines = cl.CleansedLines(lines)
+
+        # Check the style for each line in the code
+        # Currently only uses the CheckStyle function from the cpplint library
+        for line in range(clean_lines.NumLines()):
+            cl.CheckStyle(self.filename, clean_lines, line, file_extension, nesting_state, self.logError)
+
+
 # Get the filenames
 filenames = cl.ParseArguments(sys.argv[1:])
 
 scorers = []
 for filename in filenames:
-    # Needed to hold states for cpplint to parse braces
-    nesting_state = cl.NestingState()
     scorer = Scorer(filename)
-
-    # Separate the code into lines
-    with codecs.open(filename, 'r', 'utf8', 'replace') as target_file:
-        lines = target_file.read().split('\n')
-
-    # Finds the file extention eg) .cpp, .hpp, etc.
-    file_extension = filename[filename.rfind('.')+1:]
-
-    # Remove comments
-    clean_lines = cl.CleansedLines(lines)
-
-    # Check the style for each line in the code
-    # Currently only uses the CheckStyle function from the cpplint library
-    for line in range(clean_lines.NumLines()):
-        cl.CheckStyle(filename, clean_lines, line, file_extension, nesting_state, scorer.logError)
+    scorer.score()
     scorers.append(scorer)
 
 for scorer in scorers:
