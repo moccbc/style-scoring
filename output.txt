@@ -1,0 +1,8 @@
+Styling errors for tests/IndentStaggered.cpp
+tests/IndentStaggered.cpp:6:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]
+tests/IndentStaggered.cpp:8:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]
+tests/IndentStaggered.cpp:10:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]
+tests/IndentStaggered.cpp:12:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]
+tests/IndentStaggered.cpp:16:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]
+tests/IndentStaggered.cpp fixes required: 5
+['tests/IndentStaggered.cpp:6:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]\n', 'tests/IndentStaggered.cpp:8:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]\n', 'tests/IndentStaggered.cpp:10:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]\n', 'tests/IndentStaggered.cpp:12:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]\n', 'tests/IndentStaggered.cpp:16:  Weird number of spaces at line-start.  Are you using a 3-space indent?  [whitespace/indent] [3]\n']
